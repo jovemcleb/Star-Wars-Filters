@@ -1,9 +1,12 @@
 import React from 'react';
-import './App.css';
+import Content from './Components/Content/Content';
+import Provider from './Provider/myProvider';
 
 function App() {
   return (
-    <span>Hello, App!</span>
+    <Provider>
+      <Content />
+    </Provider>
   );
 }
 
