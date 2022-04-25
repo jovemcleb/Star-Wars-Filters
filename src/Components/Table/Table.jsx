@@ -4,15 +4,34 @@ import Context from '../../Context/myContext';
 import './table.css';
 
 export default function Table() {
-  const { planets, getPlanets } = useContext(Context);
+  const {
+    getPlanets,
+    planetsFilter,
+    filterByName,
+    handleSearch,
+    planetsFilteredByName } = useContext(Context);
 
   useEffect(() => {
     getPlanets();
   }, []);
 
+  useEffect(() => {
+    planetsFilteredByName();
+  }, [filterByName]);
+
   return (
     <>
-      <h1>Table</h1>
+      <h1>Star Wars Planets</h1>
+      <form>
+        <input
+          type="text"
+          name="search-input"
+          id="search-input"
+          value={ filterByName }
+          onChange={ (e) => handleSearch(e) }
+          data-testid="name-filter"
+        />
+      </form>
       <table className="content-table">
         <thead>
           <tr>
@@ -32,7 +51,7 @@ export default function Table() {
           </tr>
         </thead>
         <tbody>
-          {planets.map((e) => (
+          { planetsFilter.map((e) => (
             <tr key={ e.name }>
               <td>{e.name}</td>
               <td>{e.rotation_period}</td>
