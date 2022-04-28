@@ -5,8 +5,16 @@ import fetchPlanets from '../Services/apiPlanet';
 
 export default function Provider({ children }) {
   const [planets, setPlanets] = useState([]);
-  const [filterByName, setFilterByName] = useState('');
   const [planetsFilter, setPlanetsFilter] = useState([]);
+  const [filterByName, setFilterByName] = useState('');
+  const [numberFilter, setNumberFilter] = useState(
+    {
+      column: 'population',
+      comparison: 'maior que',
+      value: 0,
+    },
+  );
+  const [activeFilters, setActiveFilters] = useState([]);
 
   const getPlanets = async () => {
     const planetsResponse = await fetchPlanets();
@@ -27,13 +35,40 @@ export default function Provider({ children }) {
     setPlanetsFilter(filterPlanets);
   };
 
+  const filterByNumber = (line) => {
+    const bools = [];
+    activeFilters.forEach((filter) => {
+      switch (filter.comparison) {
+      case 'maior que':
+        bools.push(Number(line[filter.column]) > Number(filter.value));
+        break;
+
+      case 'menor que':
+        bools.push(Number(line[filter.column]) < Number(filter.value));
+        break;
+
+      case 'igual a':
+        bools.push(Number(line[filter.column]) === Number(filter.value));
+        break;
+
+      default:
+        return true;
+      }
+    });
+    return bools.every((element) => element);
+  };
+
   const context = {
-    planets,
-    planetsFilter,
     getPlanets,
+    planetsFilter,
     filterByName,
     handleSearch,
     planetsFilteredByName,
+    numberFilter,
+    setNumberFilter,
+    activeFilters,
+    setActiveFilters,
+    filterByNumber,
   };
 
   return <Context.Provider value={ context }>{children}</Context.Provider>;
