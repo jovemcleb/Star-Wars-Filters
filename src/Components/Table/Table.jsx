@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useContext, useEffect } from 'react';
+// import { element } from 'prop-types';
+import React, { useContext, useEffect, useState } from 'react';
 import Context from '../../Context/myContext';
 import './table.css';
 
@@ -17,6 +18,29 @@ export default function Table() {
     filterByNumber,
   } = useContext(Context);
 
+  const [arrOptions, setArrOptions] = useState([
+    'population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water',
+  ]);
+  const options = [];
+
+  const filterOptions = (option) => {
+    if (activeFilters.length === 0) {
+      return;
+    }
+    activeFilters.forEach(({ column }) => {
+      console.log('Entrei no forEach');
+      if (column !== option) {
+        options.push(option);
+        console.log(options);
+      }
+    });
+    setArrOptions(options);
+  };
+
+  useEffect(() => {
+    arrOptions.filter(filterOptions);
+  }, [activeFilters]);
+
   useEffect(() => {
     getPlanets();
   }, []);
@@ -24,6 +48,10 @@ export default function Table() {
   useEffect(() => {
     planetsFilteredByName();
   }, [filterByName]);
+
+  useEffect(() => {
+    console.log(activeFilters);
+  }, [activeFilters]);
 
   return (
     <>
@@ -47,11 +75,11 @@ export default function Table() {
             ({ target }) => setNumberFilter({ ...numberFilter, column: target.value })
           }
         >
-          <option value="population">population</option>
-          <option value="orbital_period">orbital_period</option>
-          <option value="diameter">diameter</option>
-          <option value="rotation_period">rotation_period</option>
-          <option value="surface_water">surface_water</option>
+          {
+            arrOptions.map((element) => (
+              <option key={ element } value={ element }>{element}</option>
+            ))
+          }
         </select>
 
         <select
@@ -83,12 +111,12 @@ export default function Table() {
           type="button"
           data-testid="button-filter"
           onClick={ () => {
-            setActiveFilters([...activeFilters, numberFilter]);
             setNumberFilter({
               column: 'population',
               comparison: 'maior que',
               value: 0,
             });
+            setActiveFilters([...activeFilters, numberFilter]);
           } }
         >
           Filtrar
