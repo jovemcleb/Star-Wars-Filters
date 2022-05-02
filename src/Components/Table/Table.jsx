@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-// import { element } from 'prop-types';
 import React, { useContext, useEffect, useState } from 'react';
+import uniqid from 'uniqid';
 import Context from '../../Context/myContext';
 import './table.css';
 
@@ -17,24 +17,31 @@ export default function Table() {
     setActiveFilters,
     filterByNumber,
   } = useContext(Context);
-
-  const [arrOptions, setArrOptions] = useState([
+  const originOption = [
     'population', 'orbital_period', 'diameter', 'rotation_period', 'surface_water',
-  ]);
+  ];
   const options = [];
+  const [arrOptions, setArrOptions] = useState(originOption);
 
   const filterOptions = (option) => {
     if (activeFilters.length === 0) {
-      return;
+      return setArrOptions(originOption);
     }
     activeFilters.forEach(({ column }) => {
-      console.log('Entrei no forEach');
-      if (column !== option) {
+      console.log(activeFilters);
+      if (column !== option && !options.includes(option)) {
+        console.log(option, column);
         options.push(option);
-        console.log(options);
       }
     });
+    console.log(options);
     setArrOptions(options);
+  };
+
+  const removeFilter = ({ target }) => {
+    const { id } = target;
+    const remove = activeFilters.filter(({ column }) => column !== id);
+    setActiveFilters(remove);
   };
 
   useEffect(() => {
@@ -77,7 +84,7 @@ export default function Table() {
         >
           {
             arrOptions.map((element) => (
-              <option key={ element } value={ element }>{element}</option>
+              <option key={ uniqid() } value={ element }>{element}</option>
             ))
           }
         </select>
@@ -122,6 +129,27 @@ export default function Table() {
           Filtrar
         </button>
       </form>
+
+      {activeFilters.map(({ column, comparison, value }) => (
+        <button
+          key={ uniqid() }
+          id={ column }
+          type="button"
+          data-testid="filter"
+          onClick={ (e) => removeFilter(e) }
+        >
+          {`${column} ${comparison} ${value}`}
+        </button>
+      ))}
+
+      <button
+        type="button"
+        data-testid="button-remove-filters"
+        onClick={ () => setActiveFilters([]) }
+      >
+        Remover todas filtragens
+      </button>
+
       <table className="content-table">
         <thead>
           <tr>
@@ -142,7 +170,7 @@ export default function Table() {
         </thead>
         <tbody>
           { planetsFilter.filter(filterByNumber).map((e) => (
-            <tr key={ e.name }>
+            <tr key={ uniqid() }>
               <td>{e.name}</td>
               <td>{e.rotation_period}</td>
               <td>{e.orbital_period}</td>
